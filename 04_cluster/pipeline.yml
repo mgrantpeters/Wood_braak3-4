@@ -1,0 +1,186 @@
+# ============================================================
+# Clustering workflow Panpipes (pipeline_clustering.py)
+# ============================================================
+# written by Charlotte Rich-Griffin, Fabiola Curion
+
+# ------------------------
+# compute resource options
+# ------------------------
+resources:
+  threads_high: 2
+  threads_medium: 2
+  threads_low: 2
+
+  fewer_jobs: True
+condaenv:
+
+# --------------------------
+# Start
+# --------------------------
+
+sample_prefix: gex_teamWood_multiome
+scaled_obj: ../03b-integrate_per_sample_id/gex_teamWood_multiome_corrected.h5mu
+full_obj: 
+
+# run clustering on each individual modality:
+modalities:
+  rna: True
+  prot: False
+  atac: False
+  spatial: False
+
+# if True, will look for WNN, mofa, multivi, totalVI embeddings
+multimodal:
+  run_clustering: False
+  integration_method: 
+
+
+# ---------------------------------------
+# parameters for finding neighbours
+# ---------------------------------------
+# 
+# -----------------------------
+
+neighbors:
+  rna:
+    #use the knn calculated in the integration workflow. If False it will recalculate
+    use_existing: True
+    dim_red: X_pca
+    n_dim_red: 100
+    k: 45
+    metric: euclidean
+    method: scanpy
+  prot:
+    #use the knn calculated in the integration workflow. If False it will recalculate
+    use_existing: True
+    dim_red: 
+    n_dim_red: 
+    k: 
+    metric: 
+    method: 
+  atac:
+    #use the knn calculated in the integration workflow. If False it will recalculate
+    use_existing: True
+    dim_red: 
+    dim_remove: 
+    n_dim_red: 
+    k: 
+    metric: 
+    method: 
+  spatial:
+    #use the knn calculated in the integration workflow. If False it will recalculate
+    use_existing: True
+    dim_red: 
+    n_dim_red: 
+    k: 
+    metric: 
+    method: 
+
+# ---------------------------------------
+# parameters for umap calculation
+# ---------------------------------------
+umap:
+  run: True
+  rna: 
+    mindist:
+      - 0.25
+      - 0.5
+  prot:
+    mindist:
+      - 0.1 
+  atac: 
+    mindist:
+      - 0.1
+  multimodal:
+    mindist:
+      - 0.1
+  spatial:
+    mindist:
+
+
+# ---------------------------------------
+# parameters for clustering
+# ---------------------------------------
+clusterspecs:
+  rna:
+    resolutions:
+     - 0.1
+     - 0.2
+    algorithm: leiden 
+  prot:
+    resolutions:
+     - 1
+    algorithm:  
+  atac:
+    resolutions:
+     - 1
+    algorithm:  
+  multimodal:
+    resolutions:
+     - 1
+    algorithm:
+  spatial:
+    resolutions:
+    algorithm: 
+# ---------------------------------------
+# parameters for finding marker genes
+# ---------------------------------------
+# args https://scanpy.readthedocs.io/en/stable/generated/scanpy.tl.rank_genes_groups.html
+markerspecs:
+  rna:
+    run: True
+    layer: logged_counts
+    method: wilcoxon
+    mincells: 100
+    pseudo_seurat: False
+    minpct: 0.1
+    threshuse: 0.25
+
+  prot:
+    run: False
+    layer: clr 
+    mincells: 10 
+    method: wilcoxon
+    pseudo_seurat: False
+    minpct: 0.1
+    threshuse: 0.25
+
+  atac:
+    run: False
+    layer: logged_counts #options logged_counts, signac_norm , logTF_norm,logIDF_norm
+    mincells: 10
+    method: wilcoxon
+    pseudo_seurat: False
+    minpct: 0.1
+    threshuse: 0.25
+
+  multimodal:
+    mincells: 10
+    # method options: [‘logreg’, ‘t-test’, ‘wilcoxon’, ‘t-test_overestim_var’]]
+    method: wilcoxon
+    pseudo_seurat: False
+    minpct: 0.1
+    threshuse: 0.25
+
+  spatial:
+    # args for spatial https://scanpy.readthedocs.io/en/stable/generated/scanpy.tl.rank_genes_groups.html
+    run: False
+    layer: norm_pearson_resid
+    method: t-test_overestim_var
+    mincells: 10 
+    pseudo_seurat: False
+    minpct: 0.1
+    threshuse: 0.25
+
+# ---------------------------------------
+# plot specs are used to define which metadata columns are used in the visualizations
+# ---------------------------------------
+plotspecs:
+  layers:
+    rna: logged_counts
+    prot: 
+    atac: 
+    spatial: 
+  top_n_markers: 10
+
+

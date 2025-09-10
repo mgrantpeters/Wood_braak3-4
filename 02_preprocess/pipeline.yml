@@ -1,0 +1,202 @@
+# ============================================================
+# Preprocess workflow Panpipes (pipeline_preprocess.py)
+# ============================================================
+# This file contains the parameters for the ingest workflow.
+# For full descriptions of the parameters, see the documentation at https://panpipes-pipelines.readthedocs.io/en/latest/yaml_docs/pipeline_preprocess_yml.html
+
+
+#--------------------------
+# Compute resources options
+#--------------------------
+resources:
+  threads_high: 2
+  threads_medium: 2
+  threads_low: 1
+
+condaenv:
+
+
+#-------------------------------
+# General project specifications
+#-------------------------------
+sample_prefix: gex_teamWood_multiome
+unfiltered_obj: ../01-QC/annotated_gex_teamWood_multiome_unfilt.h5mu
+
+modalities:
+  rna:  True
+  prot: False
+  rep: False
+  atac: False
+
+# ----------------------------
+# Filtering Cells and Features
+# ----------------------------
+# Filtering is done sequentially for all modalities, filtering first cells and then features.
+# In the following, you can specify the filtering parameters for each modality.
+
+filtering:
+  run: True
+  keep_barcodes:
+
+  #------------------------
+  # RNA-specific filtering
+  rna:
+    # obs, i.e. cell level filtering
+    obs:
+      min:
+        n_genes_by_counts: 20
+      max:
+        total_counts: 20000
+        n_genes_by_counts: 17500
+        pct_counts_mt: 5
+        pct_counts_rp: 5
+        doublet_scores:
+      bool:
+
+    # var, i.e. gene (feature) level filtering
+    var: 
+      min:
+        n_cells_by_counts: 20
+      max:
+        total_counts:
+        n_cells_by_counts:
+
+  #------------------------
+  # Protein-specific filtering
+  prot:
+    # obs, i.e. cell level filtering
+    obs:  
+      max:
+        total_counts:
+
+    # var, i.e. gene (feature) level filtering
+    var:
+      max:
+      min:
+
+  #------------------------
+  # ATAC-specific filtering
+  atac:
+    # obs, i.e. cell level filtering
+    obs:  
+      max:
+
+    # var, i.e. gene (feature) level filtering
+    var:    
+      nucleosome_signal:
+
+
+# ---------------------------
+# Intersecting cell barcodes
+# ---------------------------
+# Subset observations (cells) in-place by intersect
+intersect_mods: 
+
+
+# --------------------------
+# Downsampling cell barcodes
+# --------------------------
+downsample_n:
+downsample_col:
+downsample_mods: 
+
+
+# ------------------
+# Plotting variables
+# ------------------
+# all metrics in this section should be provided as a comma separated string without spaces e.g. a,b,c
+# leave blank to avoid plotting
+plotqc:
+  grouping_var: sample_id
+  rna_metrics: pct_counts_mt,pct_counts_rp,pct_counts_hb,pct_counts_ig,doublet_scores
+  prot_metrics: total_counts,log1p_total_counts,n_prot_by_counts,pct_counts_isotype
+  atac_metrics: 
+  rep_metrics:
+
+
+# -----------------------
+# RNA preprocessing steps
+# -----------------------
+# Currently, only standard preprocessing steps (sc.pp.normalize_total followed by sc.pp.log1p) is offered for the RNA modality.
+log1p: True
+hvg:
+  flavor: seurat_v3 # Options: seurat, cell_ranger, or seurat_v3
+  batch_key:
+  n_top_genes: 2000
+  min_mean:
+  max_mean:
+  min_disp:
+  # File containg a custom list of genes to exclude from HVG
+  exclude_file: 
+  exclude:
+  # Filter the object to retain only the HVG?
+  filter: False
+# Which covariates to regress out
+regress_variables:
+
+
+#---------
+# Scaling
+run_scale: True
+scale_max_value: 
+
+
+#-----------------------------
+# RNA Dimensionality Reduction
+pca:
+  n_pcs: 100
+  solver: default
+  color_by: sample_id
+
+
+# ----------------------------------
+# Protein (PROT) preprocessing steps
+# ----------------------------------
+prot:
+  normalisation_methods: 
+
+  # CLR parameters:
+  # 0 = normalise row-wise (per cell)
+  # 1 = normalise column-wise (per feature, recommended)
+  clr_margin: 
+
+  # DSB parameters:
+  background_obj:
+  quantile_clipping: 
+
+  store_as_X:
+  save_norm_prot_mtx: 
+
+  #---------------------------------
+  # Protein Dimensionality reduction
+  pca: 
+  n_pcs: 
+  solver: 
+  color_by: 
+
+# ------------------------
+# ATAC preprocessing steps
+# ------------------------
+atac:
+  binarize: 
+  normalize:  #"log1p" or "TFIDF"
+  TFIDF_flavour:  #"signac", "logTF" or "logIDF"
+  feature_selection_flavour:  #"signac" or "scanpy"
+
+  # parameters for feature_selection_flavour == "scanpy", leave blank to use defaults
+  min_mean:  #default 0.05
+  max_mean:  #default 1.5
+  min_disp:  #default 0.5
+  n_top_features:  #if specified, overwrites previous defaults for HVF selection
+  filter_by_hvf: False
+
+  # parameter for feature_selection_flavour == "signac"
+  min_cutoff:
+
+  #------------------------------
+  # ATAC Dimensionality reduction
+  dimred:  #PCA or LSI
+  n_comps:
+  solver:
+  color_by:
+  dim_remove: 
