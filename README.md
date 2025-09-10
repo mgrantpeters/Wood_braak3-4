@@ -2,3 +2,5 @@ This repository contains the code used for processing and analysis of the ASAP t
 Data preparation was performed using Panpipes (https://github.com/DendrouLab/panpipes, publication available at: https://doi.org/10.1101/2023.03.11.532085), including QC, preprocessing, batch correction, clustering and subclustering. 
 Pipeline.yml files are available containing all parameters and arguments used for data preparation, as well as interactive jupyter notebooks used for assessment of results, selection of thresholds and annotation. 
 We also make available code used for downstream analysis and data visualisation. 
+
+[![DOI](https://zenodo.org/badge/1054074829.svg)](https://doi.org/10.5281/zenodo.17092504)
